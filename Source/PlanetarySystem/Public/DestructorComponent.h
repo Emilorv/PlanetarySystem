@@ -4,23 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PlanetComponent.generated.h"
+#include "DestructorComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PLANETARYSYSTEM_API UPlanetComponent : public UActorComponent
+class PLANETARYSYSTEM_API UDestructorComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UPlanetComponent();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FVector Velocity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float InitialSpeed;
+	UDestructorComponent();
 
 protected:
 	// Called when the game starts
@@ -30,10 +24,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
-	FVector GetVelocity();
-	void UpdateVelocity(FVector newVelocity);
-
-
+	// Function to check for collisions
+	void CheckForCollisions();
 		
 };

@@ -4,6 +4,7 @@
 #include "GravityComponent.h"
 #include "GameFramework/Actor.h"
 #include "Engine.h"
+#include "PlanetComponent.h"
 
 // Sets default values for this component's properties
 UGravityComponent::UGravityComponent()
@@ -13,7 +14,7 @@ UGravityComponent::UGravityComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
     GravityRadius = 10000.0f;
-    GravityConstant = 100.0f;
+    GravityConstant = 1000.0f;
 	// ...
 }
 
@@ -61,17 +62,20 @@ void UGravityComponent::ApplyGravity()
         {
             // Check if the actor is within the specified radius.
             float Distance = FVector::Distance(CenterLocation, Actor->GetActorLocation());
-            if (Distance <= GravityRadius && Distance != 0)
+            if (Distance <= GravityRadius && Distance >0.0f)
             {
-
                 FVector ForceDirection = (CenterLocation - MeshComponent->GetComponentLocation()).GetSafeNormal();
 
                 float Mass = GetOwner()->FindComponentByClass<UPrimitiveComponent>()->GetMass();
                 float ForceMagnitude = GravityConstant* Mass / FMath::Max(1.0f, Distance * Distance);
 
-                // Apply the force by updating the position of the static mesh.
-                FVector NewLocation = MeshComponent->GetComponentLocation() + ForceDirection * ForceMagnitude;
-                MeshComponent->SetWorldLocation(NewLocation);
+                UPlanetComponent* PlanetComponent = Actor->FindComponentByClass<UPlanetComponent>();
+
+
+                if (PlanetComponent) {
+                    FVector VelocityChange = ForceDirection * ForceMagnitude * GetWorld()->DeltaTimeSeconds;
+                    PlanetComponent->UpdateVelocity(VelocityChange);
+                }
             }
         }
     }

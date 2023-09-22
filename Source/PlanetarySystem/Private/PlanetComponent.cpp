@@ -11,7 +11,7 @@ UPlanetComponent::UPlanetComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	Velocity = FVector(1.0f, 0.0f, 0.0f);
-	Speed = 100.0f; 
+	InitialSpeed = 500.0f; 
 
 	// ...
 }
@@ -21,6 +21,7 @@ UPlanetComponent::UPlanetComponent()
 void UPlanetComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	Velocity = InitialSpeed * Velocity.GetSafeNormal();
 
 	// ...
 	
@@ -32,9 +33,22 @@ void UPlanetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FVector NewLocation = GetOwner()->GetActorLocation() + Velocity * Speed * DeltaTime;
+	FVector NewLocation = GetOwner()->GetActorLocation() + Velocity * DeltaTime;
 	GetOwner()->SetActorLocation(NewLocation);
 
 	// ...
 }
+
+
+
+FVector UPlanetComponent::GetVelocity() {
+	return Velocity;
+}
+
+void UPlanetComponent::UpdateVelocity(FVector addVelocity) {
+	Velocity += addVelocity;
+}
+
+
+
 
