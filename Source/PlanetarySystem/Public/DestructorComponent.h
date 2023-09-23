@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/AudioComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
 #include "DestructorComponent.generated.h"
 
 
@@ -16,6 +19,18 @@ public:
 	// Sets default values for this component's properties
 	UDestructorComponent();
 
+	UPROPERTY(VisibleAnywhere)
+	UAudioComponent* ExplosionSoundComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UParticleSystemComponent* ExplosionParticleComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	USoundCue* ExplosionSound;
+
+	UPROPERTY(EditAnywhere, Category = "Effects")
+	UParticleSystem* ExplosionEffect;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -25,9 +40,5 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	// Function to check for collisions
-	void CheckForCollisions();
-		
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

@@ -64,15 +64,16 @@ void UGravityComponent::ApplyGravity()
             float Distance = FVector::Distance(CenterLocation, Actor->GetActorLocation());
             if (Distance <= GravityRadius && Distance >0.0f)
             {
-                FVector ForceDirection = (CenterLocation - MeshComponent->GetComponentLocation()).GetSafeNormal();
-
-                float Mass = GetOwner()->FindComponentByClass<UPrimitiveComponent>()->GetMass();
-                float ForceMagnitude = GravityConstant* Mass / FMath::Max(1.0f, Distance * Distance);
-
                 UPlanetComponent* PlanetComponent = Actor->FindComponentByClass<UPlanetComponent>();
 
-
                 if (PlanetComponent) {
+                FVector ForceDirection = (CenterLocation - MeshComponent->GetComponentLocation()).GetSafeNormal();
+                float ThisMass = GetOwner()->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+                float OtherMass = Actor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+                float ForceMagnitude = GravityConstant * ThisMass/ FMath::Max(1.0f, Distance * Distance);
+
+                float Acceleration = ForceMagnitude / FMath::Max(1.0f, OtherMass);
+
                     FVector VelocityChange = ForceDirection * ForceMagnitude * GetWorld()->DeltaTimeSeconds;
                     PlanetComponent->UpdateVelocity(VelocityChange);
                 }

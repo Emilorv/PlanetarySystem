@@ -15,11 +15,13 @@ UDestructorComponent::UDestructorComponent()
 		if (UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Owner->GetRootComponent()))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Loaded!"));
+			RootComponent->OnComponentBeginOverlap.AddDynamic(this, &UDestructorComponent::OnOverlapBegin);
 
-			RootComponent->OnComponentHit.AddDynamic(this, &UDestructorComponent::OnHit);
 		}
 	}
-	// ...
+
+
+	
 }
 
 
@@ -28,6 +30,18 @@ void UDestructorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	// Create and attach the audio component
+	ExplosionSoundComponent = NewObject<UAudioComponent>(this);
+	ExplosionSoundComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	ExplosionSoundComponent->RegisterComponent();
+
+
+	// Create and attach the particle component
+	ExplosionParticleComponent = NewObject<UParticleSystemComponent>(this);
+	ExplosionParticleComponent->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::SnapToTargetIncludingScale);
+	ExplosionParticleComponent->RegisterComponent();
+	// ...
 	// ...
 	
 }
@@ -38,55 +52,36 @@ void UDestructorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CheckForCollisions();
-
 	// ...
 }
 
 // Function to handle collision with other actors
-void UDestructorComponent::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void UDestructorComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 10.0f, 32, FColor::Red, false, 5.0f);
-	UE_LOG(LogTemp, Log, TEXT("Hit!"));
-
 	// Check if the other actor is valid and not this actor itself
-	if (OtherActor && OtherActor != GetOwner())
+
+	if (OtherActor && OtherActor != GetOwner() && OtherActor->GetActorLabel()!="Sun")
 	{
+		UE_LOG(LogTemp, Log, TEXT("%s crashed into %s"), *OtherActor->GetActorLabel(), *GetOwner()->GetActorLabel());
+
+		// Play the sound
+		if (ExplosionSoundComponent && ExplosionSound)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Played a sound"));
+			ExplosionSoundComponent->SetSound(ExplosionSound);
+			ExplosionSoundComponent->Play();
+		}
+
+		// Play the particle effect
+		if (ExplosionParticleComponent && ExplosionEffect)
+		{
+			ExplosionParticleComponent->SetTemplate(ExplosionEffect);
+			ExplosionParticleComponent->Activate();
+
+		}
+
 		// Destroy the other actor on collision
 		OtherActor->Destroy();
-	}
-}
-
-void UDestructorComponent::CheckForCollisions()
-{
-	// Get the owning actor's location
-	FVector StartLocation = GetOwner()->GetActorLocation();
-
-	// Set the end location slightly below the owning actor's location (adjust this as needed)
-	FVector EndLocation = StartLocation - FVector(0, 0, 10.0f);
-
-	// Perform a line trace from the start to the end location
-	FHitResult HitResult;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(GetOwner()); // Ignore collisions with the owner actor
-
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		StartLocation,
-		EndLocation,
-		ECC_Visibility, // Change this to the appropriate collision channel
-		CollisionParams
-	);
-
-	// If a collision is detected, handle it
-	if (bHit)
-	{
-		AActor* OtherActor = HitResult.GetActor();
-		if (OtherActor)
-		{
-			// Handle the collision (e.g., destroy the other actor)
-			OnHit(nullptr, OtherActor, nullptr, FVector::ZeroVector, HitResult);
-		}
 	}
 }
 
