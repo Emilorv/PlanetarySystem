@@ -59,6 +59,8 @@ void UDestructorComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 void UDestructorComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// Check if the other actor is valid and not this actor itself
+	UE_LOG(LogTemp, Log, TEXT("%s overlapped %s"), *OtherActor->GetActorLabel(), *GetOwner()->GetActorLabel());
+
 
 	if (OtherActor && OtherActor != GetOwner() && OtherActor->GetActorLabel()!="Sun")
 	{
