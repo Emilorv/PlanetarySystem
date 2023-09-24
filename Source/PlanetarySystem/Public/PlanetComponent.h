@@ -16,11 +16,16 @@ public:
 	// Sets default values for this component's properties
 	UPlanetComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	FVector Velocity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	float InitialSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float Rotation;
+
+	
 
 protected:
 	// Called when the game starts

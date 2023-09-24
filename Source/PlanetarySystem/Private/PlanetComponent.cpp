@@ -13,6 +13,8 @@ UPlanetComponent::UPlanetComponent()
 	Velocity = FVector(1.0f, 0.0f, 0.0f);
 	InitialSpeed = 500.0f; 
 
+	Rotation = 45.0f;
+
 	// ...
 }
 
@@ -35,6 +37,11 @@ void UPlanetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	FVector NewLocation = GetOwner()->GetActorLocation() + Velocity * DeltaTime;
 	GetOwner()->SetActorLocation(NewLocation);
+
+	FRotator ActorRotation = GetOwner()->GetActorRotation();
+	ActorRotation.Yaw += Rotation*DeltaTime;
+	GetOwner()->SetActorRotation(ActorRotation);
+
 
 	// ...
 }
